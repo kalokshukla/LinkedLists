@@ -70,6 +70,36 @@ Node* BuildWithDummyNode(){
     return dummy.next;
 }
 
+void appendNode(Node** headRef, int data){
+    Node* current=*headRef;
+    Node* newNode;
+    newNode=malloc(sizeof(Node));
+    newNode->data=data;
+    newNode->next=NULL;
+    
+    if (current==NULL) {
+        *headRef=newNode;
+    }
+    else{
+        while (current->next!=NULL) {
+            current=current->next;
+        }
+        current->next=newNode;
+    }
+}
+
+void appendNodeWithPush(Node** headRef, int data){
+    Node* current=*headRef;
+    if (current==NULL) {
+        Push(headRef, data);
+    }
+    else{
+        while (current->next!=NULL) {
+            current=current->next;
+        }
+        Push(&(current->next), data);
+    }
+}
 Node* BuildWithSpecialCase(){
     Node* head=NULL;
     Node* tail=head;
@@ -108,11 +138,102 @@ void printList(Node* head){
     }
     printf("%d ]\n\n",temp->data);
 }
+Node* copyList(Node* head){
+    Node* current=head;
+    Node* newList=NULL;
+    Node* tail=NULL;
+    
+    while (current!=NULL) {
+        if (newList==NULL) {
+            newList=malloc(sizeof(Node));
+            newList->data=current->data;
+            newList->next=NULL;
+            tail=newList;
+        }
+        else{
+            tail->next=malloc(sizeof(Node));
+            tail=tail->next;
+            tail->data=current->data;
+            tail->next=NULL;
+        }
+        current=current->next;
+    }
+    return newList;
+}
+Node* copyListWithPush(Node* head){
+    Node* current=head;
+    Node* newList=NULL;
+    Node* tail=NULL;
+    
+    while (current!=NULL) {
+        if (newList!=NULL) {
+            Push(&newList, current->data);
+            tail=newList;
+        }
+        else{
+            Push(&(tail->next), current->data);
+            tail=tail->next;
+        }
+        current=current->next;
+    }
+    return newList;
+}
+Node* copyListWithDummy(Node* head){
+    Node dummy;
+    Node* current=head;
+    Node* tail;
+    
+    dummy.next=NULL;
+    tail=&dummy;
+    
+    while (current!=NULL) {
+        Push(&(tail->next), current->data);
+        tail=tail->next;
+        current=current->next;
+
+    }
+    
+    return dummy.next;
+}
+
+Node* copyListWithLocalRef(Node* head){
+    Node* current=head;
+    Node* newList=NULL;
+    Node** lastPtrRef=&newList;
+    
+    while (current!=NULL) {
+        Push(lastPtrRef, current->data);
+        lastPtrRef=&(*lastPtrRef)->next;
+        current=current->next;
+    }
+    return newList;
+}
+Node* copyListRecursive(Node* head){
+    Node* current=head;
+    if (head==NULL) {
+        return NULL;
+    }
+    else{
+        Node* newList=malloc(sizeof(Node));
+        newList->data=current->data;
+        newList->next=copyListRecursive(current->next);
+        return newList;
+    }
+}
+    
 int main(int argc, const char * argv[])
 {
-    printList(BuildWithLocalRef());
+    
+    //printList(appendNode(&(BuildWithLocalRef()), 2)); //doesn't work? &(2376ut) doesn't work not a lvalue
+    Node* head=BuildOneTwoThree();
+    appendNodeWithPush(&head, 4);
+    printList(copyList(head));
     printList(BuildWithDummyNode());
     printList(BuildWithSpecialCase());
+    printList(copyList(BuildWithLocalRef()));
+    printList(copyListWithDummy(BuildWithSpecialCase()));
+    printList(copyListWithLocalRef(BuildWithLocalRef()));
+    printList(copyListRecursive(BuildOneTwoThree()));
     return 0;
 }
 
