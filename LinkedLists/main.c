@@ -56,6 +56,49 @@ void Push(Node** headRef, int data){
     *headRef=newNode;
 }
 
+Node* BuildWithDummyNode(){
+    Node dummy;
+    Node* tail=&dummy;
+    
+    int i;
+    dummy.next=NULL; //Its a Node, not a pointer to Node
+    
+    for (i=1; i<6; i++) {
+        Push(&(tail->next), i);
+        tail=tail->next;
+    }
+    return dummy.next;
+}
+
+Node* BuildWithSpecialCase(){
+    Node* head=NULL;
+    Node* tail=head;
+    
+    int i;
+    
+    Push(&head, 1);
+    tail=head;
+    
+    for (i=2; i<6; i++) {
+        Push(&(tail->next), i);
+        tail=tail->next;
+    }
+    
+    return head;
+}
+
+Node* BuildWithLocalRef(){
+    Node* head=NULL;
+    Node** lastPtrRef=&head;
+    
+    int i;
+    
+    for (i=1; i<6; i++) {
+        Push(lastPtrRef, i);
+        lastPtrRef=&((*lastPtrRef)->next);
+    }
+    return head;
+}
 void printList(Node* head){
     printf("[ ");
     Node* temp=head;
@@ -67,23 +110,9 @@ void printList(Node* head){
 }
 int main(int argc, const char * argv[])
 {
-    Node* head=BuildOneTwoThree();
-    Node* head2=NULL;
-    Push(&head2, 23);
-    printList(head2);
-    Push(&head2, 24);
-    printList(head2);
-    Push(&head2, 25);
-    printList(head2);
-    printList(head);
-    int len=Length(head);
-    printf("%d\n",len);
-    Push(&head, 0);
-    printList(head);
-    Push(&head, -1);
-    printList(head);
-    len=Length(head);
-    printf("%d\n",len);
+    printList(BuildWithLocalRef());
+    printList(BuildWithDummyNode());
+    printList(BuildWithSpecialCase());
     return 0;
 }
 
