@@ -132,6 +132,10 @@ Node* BuildWithLocalRef(){
 void printList(Node* head){
     printf("[ ");
     Node* temp=head;
+    if (temp==NULL) {
+        printf(" ]");
+        return;
+    }
     while (temp->next!=NULL) {
         printf("%d-->",temp->data);
         temp=temp->next;
@@ -220,20 +224,189 @@ Node* copyListRecursive(Node* head){
         return newList;
     }
 }
-    
+
+int countOccurences(Node* head, int term){
+    Node* current=head;
+    int count=0;
+    while (current!=NULL) {
+        if (current->data==term) {
+            count++;
+        }
+        current=current->next;
+    }
+    return count;
+}
+
+int getNth(Node* head, int n){
+    Node* current=head;
+    if (head==NULL) {
+        printf("List is empty");
+        exit(-2);
+    }
+    else{
+        while (--n>0&&current!=NULL) {
+            current=current->next;
+        }
+        if (current!=NULL) {
+            return current->data;
+        }
+        else{
+            printf("Index out of bound.\n");
+            exit(-2);
+        }
+    }
+}
+void deleteList(Node** headRef){
+    Node* current=*headRef;
+    Node* temp=current;
+    while (temp!=NULL) {
+        temp=current->next;
+        free(current);
+        current=temp;
+    }
+    *headRef=NULL;
+}
+int pop(Node** headRef){
+    if (*headRef==NULL) {
+        printf("\n\nList is already empty.\n");
+        exit(-9);
+    }
+    Node* temp=*headRef;
+    int result=temp->data;
+    temp=temp->next;
+    free(*headRef);
+    *headRef=temp;
+    return result;
+}
+void insertNth(Node** headRef, int n, int data){
+    Node* current=*headRef;
+    if (*headRef==NULL&&n>1) {
+        printf("\nInserting in empty list at a postion other than first.\n");
+    }
+    if (n==1) {
+        Push(headRef, data);
+        
+        
+    }
+    else{
+        while (--n>1&&current!=NULL) {
+            current=current->next;
+        }
+        if (current==NULL&&n>1) {
+            printf("Reached end of list.\n");
+            exit(-10);
+        }
+        Node* newNode=malloc(sizeof(Node));
+        newNode->data=data;
+        newNode->next=current->next;
+        current->next=newNode;
+    }
+}
+
+void sortedInsert(Node** headRef, Node* newNode){
+    Node* current=*headRef;
+    if(current==NULL||current->data>=newNode->data){
+        newNode->next=current;
+        *headRef=newNode;
+        
+    }
+    else{
+        while (current->next->data<newNode->data&&current->next!=NULL) {
+            current=current->next;
+        }
+
+        newNode->next=current->next;
+        current->next=newNode;
+    }
+}
+void insertSort(Node** headRef){
+    Node* result = NULL;      // build the answer here
+    Node* current = *headRef; // iterate over the original list
+    Node* next;
+    while (current!=NULL) {
+        next = current->next;   // tricky - note the next pointer before we change it
+        sortedInsert(&result, current);
+        current = next;
+    }
+    *headRef = result;
+}
+void append(Node** aRef, Node** bRef){
+    if (*aRef==NULL) {
+        aRef=bRef;
+    }
+    else{
+        Node* current=*aRef;
+        while (current->next!=NULL) {
+            current=current->next;
+        }
+        current->next=*bRef;
+        *bRef=NULL;
+    }
+}
+/*void Split(Node* head, Node** first, Node** second){
+    Node* fast=head;
+    Node* slow=head;
+    while (fast->next->next!=NULL) {
+        fast=fast->next->next;
+        slow=slow->next;
+    }
+    *second=slow->next;
+    slow->next=NULL;
+    *first=head;
+}*/
 int main(int argc, const char * argv[])
 {
     
     //printList(appendNode(&(BuildWithLocalRef()), 2)); //doesn't work? &(2376ut) doesn't work not a lvalue
     Node* head=BuildOneTwoThree();
     appendNodeWithPush(&head, 4);
-    printList(copyList(head));
-    printList(BuildWithDummyNode());
+    appendNode(&head, 4);
+    appendNode(&head, 4);
+    printList(head);
+    printf("4 occured %d times.\n\n",countOccurences(head, 4));
+    /*printList(BuildWithDummyNode());
     printList(BuildWithSpecialCase());
     printList(copyList(BuildWithLocalRef()));
     printList(copyListWithDummy(BuildWithSpecialCase()));
     printList(copyListWithLocalRef(BuildWithLocalRef()));
-    printList(copyListRecursive(BuildOneTwoThree()));
+    printList(copyListRecursive(BuildOneTwoThree()));*/
+    printf("4th element in list is %d.\n",getNth(head, 4));
+    printList(head);
+    deleteList(&head);
+    printf("List after deletion is: ");
+    printList(head);
+    printf("\nTest list: ");
+    Node* test=BuildWithSpecialCase();
+    printList(test);
+    pop(&test);
+    printList(test);
+    Push(&test, 5);
+    printList(test);
+    Node* test3=BuildOneTwoThree();
+    pop(&test3);
+    pop(&test3);
+    pop(&test3);
+    insertNth(&test3, 1, 234);
+    printList(test3);
+    insertNth(&(head), 1, 89);
+    //printList(test);
+    //insertSort(&test);
+    //printList(test);
+    Node* test4=BuildWithLocalRef();
+    Node new;
+    new.data=57;
+    new.next=NULL;
+    insertNth(&test4, 6, 67);
+    printList(test4);
+    sortedInsert(&test4, &new);
+    printList(test4);
+    Node* test5=BuildWithLocalRef();
+    Push(&test5, 6);
+    insertNth(&test5, 4, 3);
+    printList(test5);
+    insertSort(&test5);
+    append(&test5, &test4);
+    printList(test5);
     return 0;
 }
 
