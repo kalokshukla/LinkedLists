@@ -16,7 +16,6 @@ struct node{
 
 typedef struct node Node;
 
-
 int Length(Node *head){
     Node* current=head;
     int length=0;
@@ -26,7 +25,6 @@ int Length(Node *head){
     }
     return length;
 }
-
 
 Node* BuildOneTwoThree(){
     Node* head=NULL;
@@ -100,6 +98,7 @@ void appendNodeWithPush(Node** headRef, int data){
         Push(&(current->next), data);
     }
 }
+
 Node* BuildWithSpecialCase(){
     Node* head=NULL;
     Node* tail=head;
@@ -129,6 +128,7 @@ Node* BuildWithLocalRef(){
     }
     return head;
 }
+
 void printList(Node* head){
     printf("[ ");
     Node* temp=head;
@@ -142,6 +142,7 @@ void printList(Node* head){
     }
     printf("%d ]\n\n",temp->data);
 }
+
 Node* copyList(Node* head){
     Node* current=head;
     Node* newList=NULL;
@@ -164,6 +165,7 @@ Node* copyList(Node* head){
     }
     return newList;
 }
+
 Node* copyListWithPush(Node* head){
     Node* current=head;
     Node* newList=NULL;
@@ -182,6 +184,7 @@ Node* copyListWithPush(Node* head){
     }
     return newList;
 }
+
 Node* copyListWithDummy(Node* head){
     Node dummy;
     Node* current=head;
@@ -212,6 +215,7 @@ Node* copyListWithLocalRef(Node* head){
     }
     return newList;
 }
+
 Node* copyListRecursive(Node* head){
     Node* current=head;
     if (head==NULL) {
@@ -256,6 +260,7 @@ int getNth(Node* head, int n){
         }
     }
 }
+
 void deleteList(Node** headRef){
     Node* current=*headRef;
     Node* temp=current;
@@ -266,6 +271,7 @@ void deleteList(Node** headRef){
     }
     *headRef=NULL;
 }
+
 int pop(Node** headRef){
     if (*headRef==NULL) {
         printf("\n\nList is already empty.\n");
@@ -278,6 +284,7 @@ int pop(Node** headRef){
     *headRef=temp;
     return result;
 }
+
 void insertNth(Node** headRef, int n, int data){
     Node* current=*headRef;
     if (*headRef==NULL&&n>1) {
@@ -319,9 +326,10 @@ void sortedInsert(Node** headRef, Node* newNode){
         current->next=newNode;
     }
 }
+
 void insertSort(Node** headRef){
-    Node* result = NULL;      // build the answer here
-    Node* current = *headRef; // iterate over the original list
+    Node* result = NULL;      
+    Node* current = *headRef; 
     Node* next;
     while (current!=NULL) {
         next = current->next;   // tricky - note the next pointer before we change it
@@ -343,17 +351,233 @@ void append(Node** aRef, Node** bRef){
         *bRef=NULL;
     }
 }
-/*void Split(Node* head, Node** first, Node** second){
-    Node* fast=head;
+
+void split(Node* head, Node** first, Node** second){
     Node* slow=head;
-    while (fast->next->next!=NULL) {
-        fast=fast->next->next;
-        slow=slow->next;
+    Node* fast=head->next;
+    if (slow==NULL||fast==NULL) {
+        *first=head;
+        *second=NULL;
+        return;
     }
-    *second=slow->next;
-    slow->next=NULL;
-    *first=head;
-}*/
+    else{
+        while (fast!=NULL) {
+            fast=fast->next;
+            if (fast!=NULL) {
+                fast=fast->next;
+                slow=slow->next;
+            }
+        }
+        *first=head;
+        *second=slow->next;
+        slow->next=NULL;
+    }
+}
+
+void removeDuplicates(Node* head){
+    Node* current=head;
+    while (current->next!=NULL) {
+        if (current->data==current->next->data) {
+            Node* nextNext=current->next->next;
+            free(current->next);
+            current->next=nextNext;
+        }
+        else{
+            current=current->next;
+        }
+    }
+}
+
+void moveNode(Node** sourceRef, Node** destRef){
+    
+    Push(destRef, pop(sourceRef));
+}
+
+void alternatingSplit(Node* source, Node** aRef, Node** bRef){
+    //assert(source!=NULL);
+    Node* a=NULL;
+    Node* b=NULL;
+    Node* current=source;
+    while (current!=NULL) {
+        moveNode(&current, &a);
+        if (current!=NULL) {
+            moveNode(&current, &b);
+        }
+    }
+    *aRef=a;
+    *bRef=b;
+}
+
+Node* shuffleMerge(Node* a, Node* b){
+    Node dummy;
+    Node* tail=&dummy;
+    dummy.next=NULL;
+    while (1) {
+        if (a==NULL) {
+            tail->next=b;
+            break;
+        }
+        else if (b==NULL){
+            tail->next=a;
+            break;
+        }
+        else{
+            moveNode(&a, &(tail->next));
+            tail=tail->next;
+            moveNode(&b, &(tail->next));
+            tail=tail->next;
+        }
+    }
+    return dummy.next;
+}
+
+Node* shuffleMergeRecursive(Node* a, Node* b){
+    Node *result, *recur;
+    if (a==NULL) {
+        return b;
+    }
+    else if (b==NULL) {
+        return a;
+    }
+    else{
+        recur=shuffleMergeRecursive(a->next, b->next);
+        result=a;
+        a->next=b;
+        b->next=recur;
+        return result;
+    }
+}
+
+Node* sortedMerge(Node* a, Node*b){
+    Node* result;
+    Node** lastPtrRef=&result;
+    while (1) {
+        if (a==NULL) {
+            *lastPtrRef=b;
+            break;
+        }
+        else if(b==NULL){
+            *lastPtrRef=a;
+            break;
+        }
+        if (a->data<=b->data) {
+            moveNode(&a, lastPtrRef);
+        }
+        else{
+            moveNode(&b, lastPtrRef);
+        }
+        lastPtrRef=&((*lastPtrRef)->next);
+    }
+    return result;
+}
+
+Node* sortedMergeRecursive(Node* a, Node* b){
+    Node *result=NULL;
+    if (a==NULL) {
+        return b;
+    }
+    if (b==NULL) {
+        return a;
+    }
+    else{
+        if (a->data <= b->data) {
+            result=a;
+            result->next=shuffleMergeRecursive(a->next, b);
+        }
+        else{
+            result=b;
+            result->next=shuffleMerge(a, b->next);
+        }
+        return result;
+    }
+    
+}
+
+void mergeSort(Node** headRef){
+    Node* head=*headRef;
+    Node* first;
+    Node* second;
+    if (head==NULL||head->next==NULL) {
+        return;
+    }
+    split(head, &first, &second);
+    mergeSort(&first);
+    mergeSort(&second);
+    *headRef = sortedMerge(first, second);
+}
+
+Node* sortedIntersect(Node* a, Node* b){
+    Node* result = NULL;
+    Node** lastPtrRef = &result;
+    while (a!=NULL && b!=NULL) {
+        if (a->data == b->data) {     
+            Push(lastPtrRef, a->data);
+            lastPtrRef = &((*lastPtrRef)->next);
+            a=a->next;
+            b=b->next; }
+        else if (a->data < b->data) {
+            a=a->next;
+        } else {
+            b=b->next;
+        }
+    }
+    return(result);
+}
+
+void reverse(Node** headRef){
+    Node* current=*headRef;
+    Node* result=NULL;
+    while (current!=NULL) {
+        moveNode(&current, &result);
+    }
+    *headRef=result;
+}
+
+void reverseV2(Node** headRef){
+    Node* current=*headRef;
+    Node* result=NULL;
+    Node* next=NULL;
+    while (current!=NULL) {
+        next=current->next;
+        current->next=result;
+        result=current;
+        current=next;
+    }
+    *headRef=result;
+}
+
+void reverseV3(Node** headRef){
+    Node* middle=*headRef;
+    Node* front= middle->next;
+    Node* back=NULL;
+    if (*headRef!=NULL) {
+        while (1) {
+            middle->next=back;
+            if (front==NULL) {
+                break;
+            }
+            
+            back=middle;
+            middle=front;
+            front=front->next;
+        }
+        *headRef=middle;
+    }
+    
+}
+
+void recursiveReverse(Node** headRef){
+    Node* first=*headRef;
+    Node* rest=first->next;
+    if (rest==NULL) {
+        return;
+    }
+    recursiveReverse(&rest);
+    first->next->next=first;
+    first->next=NULL;
+    *headRef=rest;
+}
+
 int main(int argc, const char * argv[])
 {
     
@@ -362,51 +586,54 @@ int main(int argc, const char * argv[])
     appendNodeWithPush(&head, 4);
     appendNode(&head, 4);
     appendNode(&head, 4);
-    printList(head);
-    printf("4 occured %d times.\n\n",countOccurences(head, 4));
-    /*printList(BuildWithDummyNode());
-    printList(BuildWithSpecialCase());
-    printList(copyList(BuildWithLocalRef()));
-    printList(copyListWithDummy(BuildWithSpecialCase()));
-    printList(copyListWithLocalRef(BuildWithLocalRef()));
-    printList(copyListRecursive(BuildOneTwoThree()));*/
-    printf("4th element in list is %d.\n",getNth(head, 4));
-    printList(head);
-    deleteList(&head);
-    printf("List after deletion is: ");
-    printList(head);
-    printf("\nTest list: ");
-    Node* test=BuildWithSpecialCase();
-    printList(test);
-    pop(&test);
-    printList(test);
-    Push(&test, 5);
-    printList(test);
-    Node* test3=BuildOneTwoThree();
-    pop(&test3);
-    pop(&test3);
-    pop(&test3);
-    insertNth(&test3, 1, 234);
-    printList(test3);
-    insertNth(&(head), 1, 89);
-    //printList(test);
-    //insertSort(&test);
-    //printList(test);
-    Node* test4=BuildWithLocalRef();
-    Node new;
-    new.data=57;
-    new.next=NULL;
-    insertNth(&test4, 6, 67);
-    printList(test4);
-    sortedInsert(&test4, &new);
-    printList(test4);
     Node* test5=BuildWithLocalRef();
     Push(&test5, 6);
     insertNth(&test5, 4, 3);
-    printList(test5);
+    //printList(test5);
     insertSort(&test5);
-    append(&test5, &test4);
-    printList(test5);
+    append(&test5, &head);
+    //printList(test5);
+    Node *first=NULL,*second=NULL;
+    //pop(&test5);
+    //split(test5, &first, &second);
+    //printList(first);
+    //printList(second);
+    //removeDuplicates(second);
+    //printList(first);
+    //printList(second);
+    //moveNode(&first, &second);
+    //printList(first);
+    //printList(second);
+    alternatingSplit(test5, &first, &second);
+    //printList(first);
+    //printList(second);
+    //Node* test=shuffleMergeRecursive(first, second);
+    //printList(test);
+    Node* test1=BuildOneTwoThree();
+    Node* test2=BuildOneTwoThree();
+    pop(&test2);
+    appendNode(&test2, 7);;
+    appendNode(&test1, 5);
+    //printList(test1);
+    //printList(test2);
+    append(&test1, &test2);
+    //printList(test1);
+    mergeSort(&test1);
+    //printList(test1);
+    Node* t4=BuildOneTwoThree();
+    Node* t5=BuildOneTwoThree();
+    appendNode(&t5, 6);
+    appendNode(&t4, 6);
+    appendNode(&t4, 7);
+    appendNode(&t5, 8);
+    Push(&t5, 0);
+    Push(&(t5->next), 1);
+    //printList(t5);
+    //printList(t4);
+    
+    //printList(sortedIntersect(t4, t5));
+    recursiveReverse(&t5);
+    printList(t5);
     return 0;
 }
-
+;
